@@ -84,7 +84,7 @@ func WithField(name string, value interface{}) factoryOption {
 // 	WithField("ID", 123),
 // ).To(model)
 //
-func Build(f *Factory, opts ...factoryOption) *buildTo {
+func Build(f *Factory, opts ...factoryOption) to {
 	bp := newDefaultBlueprint(f)
 
 	for _, opt := range opts {
@@ -106,7 +106,7 @@ func Build(f *Factory, opts ...factoryOption) *buildTo {
 // 	WithField("Name", "new name"),
 // ).To(&modelSlice)
 //
-func BuildSlice(f *Factory, count int, opts ...factoryOption) *buildSliceTo {
+func BuildSlice(f *Factory, count int, opts ...factoryOption) to {
 	bp := newDefaultBlueprint(f)
 
 	for _, opt := range opts {
@@ -130,7 +130,7 @@ func BuildSlice(f *Factory, count int, opts ...factoryOption) *buildSliceTo {
 // 	WithField("ID", 123),
 // ).To(model)
 //
-func Create(f *Factory, opts ...factoryOption) *createTo {
+func Create(f *Factory, opts ...factoryOption) to {
 	bp := newDefaultBlueprintForCreate(f)
 
 	for _, opt := range opts {
@@ -153,7 +153,7 @@ func Create(f *Factory, opts ...factoryOption) *createTo {
 // 	WithField("Name", "new name"),
 // ).To(&modelSlice)
 //
-func CreateSlice(f *Factory, count int, opts ...factoryOption) *createSliceTo {
+func CreateSlice(f *Factory, count int, opts ...factoryOption) to {
 	bp := newDefaultBlueprintForCreate(f)
 
 	for _, opt := range opts {

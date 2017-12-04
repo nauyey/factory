@@ -11,6 +11,10 @@ const (
 	invalidTargetSliceTypeErr = "cannot use target (type []*%v) as type []*%v in func To"
 )
 
+// to is the interface that wraps the basic To method.
+//
+// To sets the value of instance built by strategies to the target value.
+// It returns error if any errors encountered.
 type to interface {
 	To(target interface{}) error
 }
