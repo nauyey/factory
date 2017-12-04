@@ -35,9 +35,11 @@ func newDefaultBlueprintForDelete(f *Factory) *blueprint {
 type factoryOption func(*blueprint) error
 
 // WithTraits defines which traits the new instance will use.
-// It can take multiple traits. These traits will be execute one by one.
-// So the later one may override the before ones.
+// It can take multiple traits. These traits will be executed one by one.
+// So the later one may override the one before.
+//
 // For example:
+//
 // The trait "trait1" set Field1 as "value1", and at the same time, trait "trait2" set Field1 as "value2".
 // The WithTraits("trait1", "trait2") will finally set Field1 as "value2".
 func WithTraits(traits ...string) factoryOption {
@@ -71,7 +73,7 @@ func WithField(name string, value interface{}) factoryOption {
 	}
 }
 
-// Build creates an instance from a factory model
+// Build creates an instance from a factory
 // but won't store it into database.
 //
 // model := &Model{}
@@ -94,7 +96,7 @@ func Build(f *Factory, opts ...factoryOption) *buildTo {
 	}
 }
 
-// BuildSlice creates a slice instance from a factory model
+// BuildSlice creates a slice instance from a factory
 // but won't store them into database.
 //
 // modelSlice := []*Model{}
@@ -117,7 +119,7 @@ func BuildSlice(f *Factory, count int, opts ...factoryOption) *buildSliceTo {
 	}
 }
 
-// Create creates an instance from a factory model
+// Create creates an instance from a factory
 // and stores it into database.
 //
 // model := &Model{}
@@ -141,7 +143,7 @@ func Create(f *Factory, opts ...factoryOption) *createTo {
 	}
 }
 
-// CreateSlice creates a slice of instance from a factory model
+// CreateSlice creates a slice of instance from a factory
 // and stores them into database.
 //
 // modelSlice := []*Model{}

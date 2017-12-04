@@ -13,10 +13,10 @@ import (
 )
 
 type User struct {
-    ID        int64     `factory:"id,primary"`
+	ID        int64     `factory:"id,primary"`
 	Name      string    `factory:"name"`
 	Gender    string    `factory:"gender"`
-    Email     string    `factory:"email"`
+	Email     string    `factory:"email"`
 }
 
 // Define a factory for User struct
@@ -59,7 +59,7 @@ Feature Support
 
 Installation
 ------------
-
+
 Simple install the package to your `$GOPATH` with the go tool from shell:
 
 ```bash

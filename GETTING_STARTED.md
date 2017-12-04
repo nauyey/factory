@@ -7,11 +7,12 @@ Table of Contents
 * [Table of Contents](#table-of-contents)
 * [Defining factories](#defining-factories)
 * [Using factories](#using-factories)
-* [Chained Field](#chained-field)
+* [Fields](#fields)
 * [Dynamic Fields](#dynamic-fields)
 * [Dependent Fields](#dependent-fields)
-* [Associations](#associations)
 * [Sequence Fields](#sequence-fields)
+* [Multilevel Fields](#multilevel-fields)
+* [Associations](#associations)
 * [Trait](#trait)
 * [Callbacks](#callbacks)
 * [Building or Creating Multiple Records](#building-or-creating-multiple-records)
@@ -25,12 +26,12 @@ Each factory is a def.Factory instance which is related to a specific golang str
 import "github.com/nauyey/factory/def"
 
 type User struct {
-    ID        int64
-    Name      string
-    Gender    string
-    Age       int
-    BirthTime time.Time
-    Country   string
+	ID        int64
+	Name      string
+	Gender    string
+	Age       int
+	BirthTime time.Time
+	Country   string
 	Email     string
 }
 
@@ -49,13 +50,13 @@ userFactory := def.NewFactory(User{}, "",
 )
 
 type UserForSave struct {
-    ID        int64     `factory:"id,primary"`
-    Name      string    `factory:"name"`
-    Gender    string    `factory:"gender"`
-    Age       int       `factory:"age"`
-    BirthTime time.Time `factory:"birth_time`
-    Country   string    `factory:"country"`
-    Email     string    `factory:"email"`
+	ID        int64     `factory:"id,primary"`
+	Name      string    `factory:"name"`
+	Gender    string    `factory:"gender"`
+	Age       int       `factory:"age"`
+	BirthTime time.Time `factory:"birth_time`
+	Country   string    `factory:"country"`
+	Email     string    `factory:"email"`
 }
 
 // This will define a factory for UserForSave struct with database table
@@ -91,7 +92,7 @@ For different kinds of scenarios, you can define different traits for them.
 Using factories
 ---------------
 
-factory supports several different build strategies: Build, Create, Delete:
+factory supports several different build strategies: Build, BuildSlice, Create, CreateSlice, Delete:
 
 ```golang
 import . "github.com/nauyey/factory"
@@ -121,14 +122,14 @@ err := Build(userFactory, WithField("Name", "Tony")).To(user)
 // Build a User instance with traits
 user := &User{}
 err := Build(userFactory, 
-    WithTraits("Chinese"), 
-    WithField("Name", "XiaoMing"),
+	WithTraits("Chinese"), 
+	WithField("Name", "XiaoMing"),
 ).To(user)
 // user.Name => "XiaoMing"
 // user.Country => "China"
 ```
 
-Before using Create, Delete, a `*sql.DB` instance should be seted to factory:
+Before using Create, CreateSlice and Delete, a `*sql.DB` instance should be seted to factory:
 
 ```golang
 import "github.com/nauyey/factory"
@@ -140,18 +141,13 @@ var db *sql.DB
 factory.SetDB(db)
 ```
 
+Fields
+------
 
-Chained Field
--------------
-
-Chained field supplies a way to set nested struct field values:
+`def.Field` sets struct field values:
 
 ```golang
-import (
-    "time"
-
-    "github.com/nauyey/factory/def"
-)
+import "github.com/nauyey/factory/def"
 
 type Blog struct {
 	ID       int64  `factory:"id,primary"`
@@ -163,12 +159,10 @@ type Blog struct {
 
 blogFactory := def.NewFactory(Blog{}, "",
 	def.Field("Title", "blog title"),
-	def.Field("Author.Name", "blog author name"),
 )
 blog := &Blog{}
 err := Build(blogFactory).To(blog)
 // blog.Title => "blog title"
-// blog.Author.Name => "blog author name"
 ``` 
 
 Dynamic Fields
@@ -178,16 +172,16 @@ Most factory fields can be added using static values that are evaluated when the
 
 ```golang
 import (
-    "time"
+	"time"
 
-    "github.com/nauyey/factory/def"
+	"github.com/nauyey/factory/def"
 )
 
 userFactory := def.NewFactory(User{}, "model_table",
 	def.Field("Name", "test name"),
 	def.DynamicField("Age", func(model interface{}) interface{} {
-        now := time.Now()
-        birthTime, _ := time.Parse("2006-01-02T15:04:05.000Z", "2017-11-19T00:00:00.000Z")
+		now := time.Now()
+		birthTime, _ := time.Parse("2006-01-02T15:04:05.000Z", "2017-11-19T00:00:00.000Z")
 		return birthTime.Sub(now).Years()
 	}),
 )
@@ -200,23 +194,91 @@ Fields can be based on the values of other fields using the evaluator that is yi
 
 ```golang
 import (
-    "time"
+	"time"
 
-    "github.com/nauyey/factory/def"
+	"github.com/nauyey/factory/def"
 )
 
 userFactory := def.NewFactory(User{}, "model_table",
 	def.Field("Name", "test name"),
 	def.DynamicField("Age", func(model interface{}) (interface{}, error) {
-        user, ok := model.(*User)
-        if !ok {
-            return nil, errors.NewFactory("invalid type of model in DynamicFieldValue function")
-        }
-        now := time.Now()
+		user, ok := model.(*User)
+		if !ok {
+			return nil, errors.NewFactory("invalid type of model in DynamicFieldValue function")
+		}
+		now := time.Now()
 		return user.BirthTime.Sub(now).Years()
 	}),
 )
 ```
+
+Sequence Fields
+---------------
+
+Unique values in a specific format (for example, e-mail addresses) can be generated using sequences. Sequence fields are defined by calling `SequenceField` in factory model defination, and values in a sequence are generated by calling `SequenceFieldValue` type of callback function:
+
+```golang
+import (
+	. "github.com/nauyey/factory"
+	"github.com/nauyey/factory/def"
+)
+
+// Defines a new sequence field
+userFactory := def.NewFactory(User{}, "model_table",
+	def.SequenceField("Email", 0, func(n int64) interface{} {
+		return fmt.Sprintf("person%d@example.com", n)
+	}),
+)
+
+user0 := &User{}
+err := Build(userFactory).To(user0)
+// user0.Email => "person0@example.com"
+
+user1 := &User{}
+err := Build(userFactory).To(user1)
+// user1.Email => "person1@example.com"
+```
+
+You can also set the initial start of the sequence:
+
+```golang
+userFactory := def.NewFactory(User{}, "model_table",
+	def.SequenceField("Email", 1000, func(n int64) interface{} {
+		return fmt.Sprintf("person%d@example.com", n)
+	}),
+)
+
+user0 := &User{}
+err := Build(userFactory).To(user0)
+// user0.Email => "person1000@example.com"
+```
+
+Multilevel Fields
+-----------------
+
+Multilevel fields feature supplies a way to set nested struct field values:
+
+```golang
+import "github.com/nauyey/factory/def"
+
+type Blog struct {
+	ID       int64  `factory:"id,primary"`
+	Title    string `factory:"title"`
+	Content  string `factory:"content"`
+	AuthorID int64  `factory:"author_id"`
+	Author   *User
+}
+
+// Author.Name is a multilevel field
+blogFactory := def.NewFactory(Blog{}, "",
+	def.Field("Title", "blog title"),
+	def.Field("Author.Name", "blog author name"),
+)
+blog := &Blog{}
+err := Build(blogFactory).To(blog)
+// blog.Title => "blog title"
+// blog.Author.Name => "blog author name"
+``` 
 
 Associations
 ------------
@@ -239,14 +301,14 @@ userFactory := def.NewFactory(User{}, "user_table",
 )
 
 blogFactory := def.NewFactory(Blog{}, "blog_table",
-    // define an association
+	// define an association
 	def.Association("Author", "AuthorID", "ID", userFactory,
 		def.Field("Name", "blog author name"), // override field
 	),
 )
 ```
 
-In factory, here isn't a direct way to define one-to-many relationships. But you can define a one-to-many relationships in `def.AfterBuild` and `def.AfterCreate`:
+In factory, there isn't a direct way to define one-to-many relationships. But you can define a one-to-many relationships in `def.AfterBuild` and `def.AfterCreate`:
 
 ```golang
 import (
@@ -269,7 +331,7 @@ type Blog struct {
 }
 
 blogFactory := def.NewFactory(Blog{}, "blog_table",
-    def.SequenceField("ID", 1, func(n int64) interface{} {
+	def.SequenceField("ID", 1, func(n int64) interface{} {
 		return n
 	}),
 )
@@ -322,47 +384,6 @@ err := Build(blogModel).To(blog) // blog isn't saved
 user = blog.Author // user isn't saved
 ```
 
-Sequence Fields
----------------
-
-Unique values in a specific format (for example, e-mail addresses) can be generated using sequences. Sequence fields are defined by calling `SequenceField` in factory model defination, and values in a sequence are generated by calling `SequenceFieldValue` type of callback function:
-
-```golang
-import (
-    . "github.com/nauyey/factory"
-    "github.com/nauyey/factory/def"
-)
-
-// Defines a new sequence field
-userFactory := def.NewFactory(User{}, "model_table",
-	def.SequenceField("Email", 0, func(n int64) interface{} {
-		return fmt.Sprintf("person%d@example.com", n)
-	}),
-)
-
-user0 := &User{}
-err := Build(userFactory).To(user0)
-// user0.Email => "person0@example.com"
-
-user1 := &User{}
-err := Build(userFactory).To(user1)
-// user1.Email => "person1@example.com"
-```
-
-You can also set the initial start of the sequence:
-
-```golang
-userFactory := def.NewFactory(User{}, "model_table",
-	def.SequenceField("Email", 1000, func(n int64) interface{} {
-		return fmt.Sprintf("person%d@example.com", n)
-	}),
-)
-
-user0 := &User{}
-err := Build(userFactory).To(user0)
-// user0.Email => "person1000@example.com"
-```
-
 Trait
 -----
 
@@ -370,16 +391,16 @@ Trait allows you to group fields together and then apply them to the factory mod
 
 ```golang
 import (
-    . "github.com/nauyey/factory"
-    "github.com/nauyey/factory/def"
+	. "github.com/nauyey/factory"
+	"github.com/nauyey/factory/def"
 )
 
 userFactory := def.NewFactory(User{}, "",
 	def.Field("Name", "Taylor"),
 	def.Trait("Chinese boy",
-        def.Field("Country", "China"),
-        def.Field("Gender", "Male"),
-    ),
+		def.Field("Country", "China"),
+		def.Field("Gender", "Male"),
+	),
 )
 
 user := &User{}
@@ -394,22 +415,22 @@ Traits can also be passed in as a slice of strings, by using `WithTraits`, when 
 
 ```golang
 import (
-    . "github.com/nauyey/factory"
-    "github.com/nauyey/factory/def"
+	. "github.com/nauyey/factory"
+	"github.com/nauyey/factory/def"
 )
 
 userFactory := def.NewFactory(User{}, "",
 	def.Field("Name", "Taylor"),
 	def.Trait("Chinese boy",
-        def.Field("Country", "China"),
-        def.Field("Gender", "Male"),
-    ),
-    def.Trait("American",
-        def.Field("Country", "USA"),
-    ),
-    def.Trait("girl",
-        def.Field("Gender", "Female"),
-    ),
+		def.Field("Country", "China"),
+		def.Field("Gender", "Male"),
+	),
+	def.Trait("American",
+		def.Field("Country", "USA"),
+	),
+	def.Trait("girl",
+		def.Field("Gender", "Female"),
+	),
 )
 
 user := &User{}
@@ -427,13 +448,12 @@ Traits can be used with associations easily too:
 import "github.com/nauyey/factory/def"
 
 blogFactory := def.NewFactory(Blog{}, "blog_table",
-    // define an association in traits
-    def.Trait("with author",
-        def.Association("Author", "AuthorID", "ID", userFactory,
-            def.Field("Name", "blog author in trait"), // override field
-        ),
-    ),
-	
+	// define an association in traits
+	def.Trait("with author",
+		def.Association("Author", "AuthorID", "ID", userFactory,
+			def.Field("Name", "blog author in trait"), // override field
+		),
+	),
 )
 
 blog := &Blog{}
@@ -478,11 +498,11 @@ import "github.com/nauyey/factory/def"
 userFactory := def.NewFactory(User{}, "",
 	def.AfterBuild(func(user interface{}) error {
 		// do something
-    }),
-    def.BeforeCreate(func(user interface{}) error {
+	}),
+	def.BeforeCreate(func(user interface{}) error {
 		// do something
-    }),
-    def.AfterCreate(func(user interface{}) error {
+	}),
+	def.AfterCreate(func(user interface{}) error {
 		// do something
 	}),
 )
@@ -497,11 +517,11 @@ import "github.com/nauyey/factory/def"
 userFactory := def.NewFactory(User{}, "",
 	def.AfterBuild(func(user interface{}) error {
 		// do something
-    }),
-    def.AfterBuild(func(user interface{}) error {
+	}),
+	def.AfterBuild(func(user interface{}) error {
 		// do something
-    }),
-    def.AfterBuild(func(user interface{}) error {
+	}),
+	def.AfterBuild(func(user interface{}) error {
 		// do something
 	}),
 )

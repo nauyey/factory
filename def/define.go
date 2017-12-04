@@ -18,7 +18,7 @@ import (
 // Associations
 // Multilevel Fields
 
-// TODO: check field duplicate define
+// TODO: check field duplicate definitions
 // TODO: generate association tree and check associations circle
 
 const (
@@ -151,7 +151,7 @@ func Association(name, referenceField, associationReferenceField string, origina
 	}
 }
 
-// Trait allows you to group attributes together and then apply them to any factory.
+// Trait allows you to group fields together and then apply them to any factory.
 func Trait(traitName string, opts ...definitionOption) definitionOption {
 	return func(f *factory.Factory) error {
 		if !f.CanHaveTraits {

@@ -254,7 +254,7 @@ func buildInstanceAssociations(instance reflect.Value, associationFieldValues ma
 	return nil
 }
 
-// TODO: most of the code is duplicate with buildInstanceAssociations
+// TODO: most of the code is duplicated with buildInstanceAssociations
 func createInstanceAssociations(db *sql.DB, instance reflect.Value, associationFieldValues map[string]*AssociationFieldValue) error {
 	for fieldName, fieldValue := range associationFieldValues {
 		associationBlueprint := newBlueprintFromAssociationFieldValueForCreateAndDelete(fieldValue)
