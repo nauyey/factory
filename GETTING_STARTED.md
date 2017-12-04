@@ -1,5 +1,5 @@
-Getting Started
-===============
+🍺 Getting Started
+==================
 
 Table of Contents
 -----------------

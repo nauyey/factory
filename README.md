@@ -69,7 +69,7 @@ $ go get -u github.com/nauyey/factory
 Documentation
 -------------
 
-See [GETTING_STARTED](GETTING_STARTED.md) for information on defining and using factories.
+See 💰💰💰[GETTING_STARTED](GETTING_STARTED.md)💰💰💰 for information on defining and using factories.
 
 How to Contribute
 -----------------
