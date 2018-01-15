@@ -18,15 +18,15 @@ import (
 // Associations
 // Multilevel Fields
 
-// TODO: check field duplicate definitions
 // TODO: generate association tree and check associations circle
 
 const (
-	invalidFieldNameErr      = "invalid field name %s to define factory of %s"
-	invalidFieldValueTypeErr = "cannot use value (type %v) as type %v of field %s to define factory of %s"
-	nestedAssociationErr     = "association %s error: nested associations isn't allowed"
-	nestedTraitErr           = "Trait %s error: nested traits is not allowed"
-	callbackInAssociationErr = "%s is not allowed in Associations"
+	invalidFieldNameErr         = "invalid field name %s to define factory of %s"
+	invalidFieldValueTypeErr    = "cannot use value (type %v) as type %v of field %s to define factory of %s"
+	nestedAssociationErr        = "association %s error: nested associations isn't allowed"
+	nestedTraitErr              = "Trait %s error: nested traits is not allowed"
+	callbackInAssociationErr    = "%s is not allowed in Associations"
+	duplicateFieldDefinitionErr = "duplicate definition of field %s"
 )
 
 func newDefaultFactory(model interface{}, table string) *factory.Factory {
@@ -88,6 +88,10 @@ func Field(name string, value interface{}) definitionOption {
 			return fmt.Errorf(invalidFieldValueTypeErr, valueType, field.Type, name, f.ModelType.Name())
 		}
 
+		if ok := definedField(f, name); ok {
+			return fmt.Errorf(duplicateFieldDefinitionErr, name)
+		}
+
 		f.FiledValues[name] = value
 		return nil
 	}
@@ -101,6 +105,10 @@ func SequenceField(name string, first int64, value factory.SequenceFieldValue) d
 			return fmt.Errorf(invalidFieldNameErr, name, f.ModelType.Name())
 		}
 
+		if ok := definedField(f, name); ok {
+			return fmt.Errorf(duplicateFieldDefinitionErr, name)
+		}
+
 		f.AddSequenceFiledValue(name, first, value)
 		return nil
 	}
@@ -111,6 +119,10 @@ func DynamicField(name string, value factory.DynamicFieldValue) definitionOption
 	return func(f *factory.Factory) error {
 		if ok := fieldExists(f.ModelType, name); !ok {
 			return fmt.Errorf(invalidFieldNameErr, name, f.ModelType.Name())
+		}
+
+		if ok := definedField(f, name); ok {
+			return fmt.Errorf(duplicateFieldDefinitionErr, name)
 		}
 
 		f.DynamicFieldValues[name] = value
@@ -143,6 +155,10 @@ func Association(name, referenceField, associationReferenceField string, origina
 			if err != nil {
 				return err
 			}
+		}
+
+		if ok := definedField(f, name); ok {
+			return fmt.Errorf(duplicateFieldDefinitionErr, name)
 		}
 
 		f.AssociationFieldValues[name] = associationFieldValue
@@ -309,4 +325,25 @@ func structFieldByName(typ reflect.Type, name string) (*reflect.StructField, boo
 	}
 
 	return field, true
+}
+
+func definedField(f *factory.Factory, name string) bool {
+	// FiledValues
+	if _, ok := f.FiledValues[name]; ok {
+		return true
+	}
+	// SequenceFiledValues
+	if _, ok := f.SequenceFiledValues[name]; ok {
+		return true
+	}
+	// DynamicFieldValues
+	if _, ok := f.DynamicFieldValues[name]; ok {
+		return true
+	}
+	// AssociationFieldValues
+	if _, ok := f.AssociationFieldValues[name]; ok {
+		return true
+	}
+
+	return false
 }
