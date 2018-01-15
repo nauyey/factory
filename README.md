@@ -1,7 +1,10 @@
 Factory: Factory for Go Tests
 ================================
+[![Build Status](https://travis-ci.org/nauyey/factory.svg?branch=master)](https://travis-ci.org/nauyey/factory)
+[![GoDoc](https://godoc.org/github.com/nauyey/factory?status.svg)](https://godoc.org/github.com/nauyey/factory)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nauyey/factory)](https://goreportcard.com/report/github.com/nauyey/factory)
 
-Factory is a fixtures replacement. With its readable APIs, you can define factories and use factories to create saved, unsaved and stubbed instances by build multiple strategies.
+Factory is a fixtures replacement. With its readable APIs, you can define factories and use factories to create saved and unsaved by build multiple strategies.
 
 Factory's APIs are inspired by [factory_bot](https://github.com/thoughtbot/factory_bot) in Ruby.
 
