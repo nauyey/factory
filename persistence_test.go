@@ -3,6 +3,8 @@ package factory
 import "testing"
 
 func TestInsertSQL(t *testing.T) {
+	dbDriverName = SqliteDriverName
+
 	table := "test_table"
 	fields := []string{"test_field1", "test_field2", "test_field3"}
 	sql := insertSQL(table, fields)
@@ -11,7 +13,20 @@ func TestInsertSQL(t *testing.T) {
 	}
 }
 
+func TestPostgresInsertSQL(t *testing.T) {
+	dbDriverName = PostgresDriverName
+
+	table := "test_table"
+	fields := []string{"test_field1", "test_field2", "test_field3"}
+	sql := insertSQL(table, fields)
+	if sql != `INSERT INTO test_table (test_field1,test_field2,test_field3) VALUES ($1,$2,$3)` {
+		t.Errorf("insertSQL failed with sql=%s", sql)
+	}
+}
+
 func TestSelectSQL(t *testing.T) {
+	dbDriverName = SqliteDriverName
+
 	table := "test_table"
 	selectFields := []string{"test_field1", "test_field2", "test_field3"}
 	primaryFields := []string{"test_primary_field1"}
@@ -21,7 +36,21 @@ func TestSelectSQL(t *testing.T) {
 	}
 }
 
+func TestPostgresSelectSQL(t *testing.T) {
+	dbDriverName = PostgresDriverName
+
+	table := "test_table"
+	selectFields := []string{"test_field1", "test_field2", "test_field3"}
+	primaryFields := []string{"test_primary_field1"}
+	sql := selectSQL(table, selectFields, primaryFields)
+	if sql != `SELECT test_field1,test_field2,test_field3 FROM test_table WHERE test_primary_field1=$1` {
+		t.Errorf("selectSQL failed with sql=%s", sql)
+	}
+}
+
 func TestDeleteSQL(t *testing.T) {
+	dbDriverName = SqliteDriverName
+
 	table := "test_table"
 	primaryFields := []string{"test_primary_field1"}
 	sql := deleteSQL(table, primaryFields)
@@ -31,6 +60,8 @@ func TestDeleteSQL(t *testing.T) {
 }
 
 func TestWhereClause(t *testing.T) {
+	dbDriverName = SqliteDriverName
+
 	fields := []string{}
 	sql := whereClause(fields)
 	if sql != `` {

@@ -6,6 +6,11 @@ import (
 	"strings"
 )
 
+const (
+	SqliteDriverName   = "*sqlite3.SQLiteDriver"
+	PostgresDriverName = "*pq.Driver"
+)
+
 // data persistence utils
 
 // insertRow inserts data into database with sql string and values.
@@ -53,7 +58,7 @@ func insertSQL(table string, fields []string) string {
 	params := make([]string, len(fields))
 
 	for i := range params {
-		params[i] = param()
+		params[i] = param(i + 1)
 	}
 
 	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, strings.Join(fields, ","), strings.Join(params, ","))
@@ -74,7 +79,10 @@ func deleteSQL(table string, primaryFields []string) string {
 // param returns the parameters symbol used in prepared
 // sql statements.
 // TODO: The parameter symbol may be different in mysql and postgres.
-func param() string {
+func param(position int) string {
+	if GetDBDriverName() == PostgresDriverName {
+		return fmt.Sprintf("$%d", position)
+	}
 	return "?"
 }
 
@@ -90,7 +98,7 @@ func whereClause(fields []string) string {
 			whereClause = whereClause + "AND"
 		}
 
-		whereClause = whereClause + fmt.Sprintf(" %s=%s ", field, param())
+		whereClause = whereClause + fmt.Sprintf(" %s=%s ", field, param(1))
 	}
 
 	return strings.Trim(whereClause, " ")
