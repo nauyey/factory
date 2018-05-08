@@ -7,3 +7,5 @@ Author
 
 Patches and Suggestions
 - - - - - - - - - - - -
+
+* Dmitry Kotenok \<<dmkotenok@gmail.com>\> [@dkotenok](https://github.com/dkotenok)

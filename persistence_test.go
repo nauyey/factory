@@ -3,7 +3,7 @@ package factory
 import "testing"
 
 func TestInsertSQL(t *testing.T) {
-	dbDriverName = SqliteDriverName
+	dbDriverName = sqliteDriverName
 
 	table := "test_table"
 	fields := []string{"test_field1", "test_field2", "test_field3"}
@@ -14,7 +14,7 @@ func TestInsertSQL(t *testing.T) {
 }
 
 func TestPostgresInsertSQL(t *testing.T) {
-	dbDriverName = PostgresDriverName
+	dbDriverName = postgresDriverName
 
 	table := "test_table"
 	fields := []string{"test_field1", "test_field2", "test_field3"}
@@ -25,7 +25,7 @@ func TestPostgresInsertSQL(t *testing.T) {
 }
 
 func TestSelectSQL(t *testing.T) {
-	dbDriverName = SqliteDriverName
+	dbDriverName = sqliteDriverName
 
 	table := "test_table"
 	selectFields := []string{"test_field1", "test_field2", "test_field3"}
@@ -37,7 +37,7 @@ func TestSelectSQL(t *testing.T) {
 }
 
 func TestPostgresSelectSQL(t *testing.T) {
-	dbDriverName = PostgresDriverName
+	dbDriverName = postgresDriverName
 
 	table := "test_table"
 	selectFields := []string{"test_field1", "test_field2", "test_field3"}
@@ -49,7 +49,7 @@ func TestPostgresSelectSQL(t *testing.T) {
 }
 
 func TestDeleteSQL(t *testing.T) {
-	dbDriverName = SqliteDriverName
+	dbDriverName = sqliteDriverName
 
 	table := "test_table"
 	primaryFields := []string{"test_primary_field1"}
@@ -60,7 +60,7 @@ func TestDeleteSQL(t *testing.T) {
 }
 
 func TestWhereClause(t *testing.T) {
-	dbDriverName = SqliteDriverName
+	dbDriverName = sqliteDriverName
 
 	fields := []string{}
 	sql := whereClause(fields)

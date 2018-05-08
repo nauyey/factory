@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	SqliteDriverName   = "*sqlite3.SQLiteDriver"
-	PostgresDriverName = "*pq.Driver"
+	sqliteDriverName   = "*sqlite3.SQLiteDriver"
+	postgresDriverName = "*pq.Driver"
 )
 
 // data persistence utils
@@ -80,7 +80,7 @@ func deleteSQL(table string, primaryFields []string) string {
 // sql statements.
 // TODO: The parameter symbol may be different in mysql and postgres.
 func param(position int) string {
-	if GetDBDriverName() == PostgresDriverName {
+	if getDBDriverName() == postgresDriverName {
 		return fmt.Sprintf("$%d", position)
 	}
 	return "?"

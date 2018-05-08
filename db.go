@@ -21,6 +21,6 @@ func getDB() *sql.DB {
 	return dbConnection
 }
 
-func GetDBDriverName() string {
+func getDBDriverName() string {
 	return dbDriverName
 }
