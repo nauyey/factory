@@ -24,8 +24,8 @@ type User struct {
 
 // Define a factory for User struct
 userFactory := def.NewFactory(User{}, "db_table_users",
-	def.SequenceField("ID", 1, func(n int64) interface{} {
-		return n
+	def.SequenceField("ID", 1, func(n int64) (interface{}, error) {
+		return n, nil
 	}),
 	def.DynamicField("Name", func(user interface{}) (interface{}, error) {
 		return fmt.Sprintf("User Name %d", user.(*User).ID), nil
@@ -118,8 +118,8 @@ type User struct {
 // This will define a factory for User struct
 userFactory := def.NewFactory(User{}, "",
 	def.Field("Name", "test name"),
-	def.SequenceField("ID", 0, func(n int64) interface{} {
-		return n
+	def.SequenceField("ID", 0, func(n int64) (interface{}, error) {
+		return n, nil
 	}),
 	def.Trait("Chinese",
 		def.Field("Country", "china"),
@@ -142,8 +142,8 @@ type UserForSave struct {
 // This will define a factory for UserForSave struct with database table
 userForSaveFactory := def.NewFactory(UserForSave{}, "model_table",
 	def.Field("Name", "test name"),
-	def.SequenceField("ID", 0, func(n int64) interface{} {
-		return n
+	def.SequenceField("ID", 0, func(n int64) (interface{}, error) {
+		return n, nil
 	}),
 	def.Trait("Chinese",
 		def.Field("Country", "china"),
@@ -300,8 +300,8 @@ import (
 
 // Defines a new sequence field
 userFactory := def.NewFactory(User{}, "model_table",
-	def.SequenceField("Email", 0, func(n int64) interface{} {
-		return fmt.Sprintf("person%d@example.com", n)
+	def.SequenceField("Email", 0, func(n int64) (interface{}, error) {
+		return fmt.Sprintf("person%d@example.com", n), nil
 	}),
 )
 
@@ -318,8 +318,8 @@ You can also set the initial start of the sequence:
 
 ```golang
 userFactory := def.NewFactory(User{}, "model_table",
-	def.SequenceField("Email", 1000, func(n int64) interface{} {
-		return fmt.Sprintf("person%d@example.com", n)
+	def.SequenceField("Email", 1000, func(n int64) (interface{}, error) {
+		return fmt.Sprintf("person%d@example.com", n), nil
 	}),
 )
 
@@ -404,8 +404,8 @@ type Blog struct {
 }
 
 blogFactory := def.NewFactory(Blog{}, "blog_table",
-	def.SequenceField("ID", 1, func(n int64) interface{} {
-		return n
+	def.SequenceField("ID", 1, func(n int64) (interface{}, error) {
+		return n, nil
 	}),
 )
 
